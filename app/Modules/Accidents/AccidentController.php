@@ -156,7 +156,7 @@ final class AccidentController extends Controller
             'title' => 'Νέο Ατύχημα',
             'lookup' => $this->formLookupData(),
             'editing' => false,
-            'factorIds' => [],
+            'factorAnswerLookupIds' => [],
             'participantCounts' => [],
         ]);
     }
@@ -196,8 +196,8 @@ final class AccidentController extends Controller
 
             $accidentId = $this->accidents->create($payload, (string) $user['id']);
 
-            $factorIds = array_map('intval', (array) ($input['factor_ids'] ?? []));
-            $this->accidents->syncFactors($accidentId, $factorIds, (string) $user['id']);
+            $factorAnswerLookupIds = $this->extractFactorAnswerLookupIds((array) ($input['factor_answer_lookup_ids'] ?? []));
+            $this->accidents->syncFactorAnswers($accidentId, $factorAnswerLookupIds, (string) $user['id']);
 
             $participantCounts = $this->extractParticipantCounts((array) ($input['participant_counts'] ?? []));
             $this->accidents->syncParticipantCounts($accidentId, $participantCounts);
@@ -244,6 +244,9 @@ final class AccidentController extends Controller
             'canResolveFlag' => ($user['role_code'] ?? '') === 'administrator',
             'statusOptions' => $this->lookups->options('accident_status'),
             'flagTypeOptions' => $this->lookups->options('flag_type'),
+            'factorOptions' => $this->lookups->options('accident_related_factor'),
+            'factorAnswerOptions' => $this->factorAnswerOptions(),
+            'factorAnswerLookupIds' => $this->accidents->factorAnswerLookupIds($id),
         ]);
     }
 
@@ -268,7 +271,7 @@ final class AccidentController extends Controller
             'accident' => $accident,
             'lookup' => $this->formLookupData(),
             'editing' => true,
-            'factorIds' => $this->accidents->factorIds($id),
+            'factorAnswerLookupIds' => $this->accidents->factorAnswerLookupIds($id),
             'participantCounts' => $this->accidents->participantCounts($id),
         ]);
     }
@@ -321,8 +324,8 @@ final class AccidentController extends Controller
 
             $this->accidents->update($id, $payload, (string) $user['id']);
 
-            $factorIds = array_map('intval', (array) ($input['factor_ids'] ?? []));
-            $this->accidents->syncFactors($id, $factorIds, (string) $user['id']);
+            $factorAnswerLookupIds = $this->extractFactorAnswerLookupIds((array) ($input['factor_answer_lookup_ids'] ?? []));
+            $this->accidents->syncFactorAnswers($id, $factorAnswerLookupIds, (string) $user['id']);
 
             $participantCounts = $this->extractParticipantCounts((array) ($input['participant_counts'] ?? []));
             $this->accidents->syncParticipantCounts($id, $participantCounts);
@@ -473,11 +476,21 @@ final class AccidentController extends Controller
                 $errors[$field] = 'Επιλέξτε έγκυρη τιμή από τη λίστα.';
             }
         }
-
-        foreach ((array) ($input['factor_ids'] ?? []) as $rawFactorId) {
+        $factorAnswerDomain = $this->factorAnswerDomain();
+        foreach ((array) ($input['factor_answer_lookup_ids'] ?? []) as $rawFactorId => $rawAnswerId) {
             $factorId = (int) $rawFactorId;
             if ($factorId <= 0 || !$this->lookups->isValueInDomain($factorId, 'accident_related_factor')) {
-                $errors['factor_ids'] = 'Υπάρχει μη έγκυρος παράγοντας ατυχήματος.';
+                $errors['factor_answer_lookup_ids'] = 'Επιλέξτε έγκυρη τιμή από τη λίστα.';
+                break;
+            }
+
+            $answerId = Input::nullableInt($rawAnswerId);
+            if ($answerId === null) {
+                continue;
+            }
+
+            if (!$this->lookups->isValueInDomain($answerId, $factorAnswerDomain) || $this->lookups->codeById($answerId) === '0') {
+                $errors['factor_answer_lookup_ids'] = 'Επιλέξτε έγκυρη τιμή από τη λίστα.';
                 break;
             }
         }
@@ -582,6 +595,47 @@ final class AccidentController extends Controller
         return $counts;
     }
 
+    /** @param array<string, mixed> $rawFactorAnswers
+     *  @return array<int, int>
+     */
+    private function extractFactorAnswerLookupIds(array $rawFactorAnswers): array
+    {
+        $answers = [];
+
+        foreach ($rawFactorAnswers as $factorId => $answerId) {
+            $factorInt = (int) $factorId;
+            if ($factorInt <= 0) {
+                continue;
+            }
+
+            $answerInt = Input::nullableInt($answerId);
+            if ($answerInt === null || $answerInt <= 0) {
+                continue;
+            }
+
+            $answers[$factorInt] = $answerInt;
+        }
+
+        return $answers;
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function factorAnswerOptions(): array
+    {
+        $options = $this->lookups->options($this->factorAnswerDomain());
+
+        return array_values(array_filter(
+            $options,
+            static fn (array $option): bool => (string) ($option['code'] ?? '') !== '0'
+        ));
+    }
+
+    private function factorAnswerDomain(): string
+    {
+        return $this->lookups->options('yes_no_unknown') !== []
+            ? 'yes_no_unknown'
+            : 'accident_alcohol';
+    }
     /** @return array<string, array<int, array<string, mixed>>> */
     private function formLookupData(): array
     {
@@ -599,6 +653,7 @@ final class AccidentController extends Controller
             'first_harmful' => $this->lookups->options('accident_first_collision_event'),
             'most_harmful' => $this->lookups->options('accident_most_harmful_event'),
             'factors' => $this->lookups->options('accident_related_factor'),
+            'factor_answers' => $this->factorAnswerOptions(),
             'participant_categories' => $this->lookups->options('participant_category'),
             'information_source' => $this->lookups->options('information_source'),
             'confidence_level' => $this->lookups->options('confidence_level'),

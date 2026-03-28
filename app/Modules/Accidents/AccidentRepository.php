@@ -363,40 +363,68 @@ final class AccidentRepository
             ':note' => $note,
         ]);
     }
-
     /** @return array<int, int> */
-    public function factorIds(string $accidentId): array
+    public function factorAnswerLookupIds(string $accidentId): array
     {
-        $stmt = $this->pdo->prepare('SELECT factor_lookup_id FROM accident_factors WHERE accident_id = :accident_id');
+        $stmt = $this->pdo->prepare(
+            'SELECT factor_lookup_id, answer_lookup_id
+             FROM accident_factor_answers
+             WHERE accident_id = :accident_id'
+        );
         $stmt->execute([':accident_id' => $accidentId]);
 
-        return array_map('intval', array_column($stmt->fetchAll() ?: [], 'factor_lookup_id'));
+        $out = [];
+        foreach ($stmt->fetchAll() ?: [] as $row) {
+            $out[(int) $row['factor_lookup_id']] = (int) $row['answer_lookup_id'];
+        }
+
+        return $out;
     }
 
-    /** @param array<int, int> $factorIds */
-    public function syncFactors(string $accidentId, array $factorIds, string $userId): void
+    /** @param array<int, int> $factorAnswerLookupIds */
+    public function syncFactorAnswers(string $accidentId, array $factorAnswerLookupIds, string $userId): void
     {
-        $this->pdo->prepare('DELETE FROM accident_factors WHERE accident_id = :accident_id')
+        $this->pdo->prepare('DELETE FROM accident_factor_answers WHERE accident_id = :accident_id')
             ->execute([':accident_id' => $accidentId]);
 
-        if ($factorIds === []) {
+        if ($factorAnswerLookupIds === []) {
             return;
         }
 
         $stmt = $this->pdo->prepare(
-            'INSERT INTO accident_factors (accident_id, factor_lookup_id, created_by)
-             VALUES (:accident_id, :factor_lookup_id, :created_by)'
+            'INSERT INTO accident_factor_answers (
+                accident_id,
+                factor_lookup_id,
+                answer_lookup_id,
+                created_by,
+                updated_by,
+                created_at,
+                updated_at
+             ) VALUES (
+                :accident_id,
+                :factor_lookup_id,
+                :answer_lookup_id,
+                :created_by,
+                :updated_by,
+                NOW(),
+                NOW()
+             )'
         );
 
-        foreach (array_unique($factorIds) as $factorId) {
-            if ($factorId <= 0) {
+        foreach ($factorAnswerLookupIds as $factorId => $answerLookupId) {
+            $factorId = (int) $factorId;
+            $answerLookupId = (int) $answerLookupId;
+
+            if ($factorId <= 0 || $answerLookupId <= 0) {
                 continue;
             }
 
             $stmt->execute([
                 ':accident_id' => $accidentId,
                 ':factor_lookup_id' => $factorId,
+                ':answer_lookup_id' => $answerLookupId,
                 ':created_by' => $userId,
+                ':updated_by' => $userId,
             ]);
         }
     }
@@ -600,3 +628,4 @@ final class AccidentRepository
         return ['WHERE ' . implode(' AND ', $where), $params];
     }
 }
+

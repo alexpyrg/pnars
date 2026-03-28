@@ -47,6 +47,50 @@
         </article>
     <?php endif; ?>
 
+    <?php
+    $factorAnswerLabelsById = [];
+    foreach ($factorAnswerOptions as $answerOption) {
+        $factorAnswerLabelsById[(string) $answerOption['id']] = (string) $answerOption['label_el'];
+    }
+
+    $answeredFactors = [];
+    foreach ($factorOptions as $factorOption) {
+        $factorId = (string) ($factorOption['id'] ?? '');
+        $answerLookupId = '';
+
+        if (array_key_exists($factorId, $factorAnswerLookupIds)) {
+            $answerLookupId = (string) $factorAnswerLookupIds[$factorId];
+        } elseif (array_key_exists((int) $factorId, $factorAnswerLookupIds)) {
+            $answerLookupId = (string) $factorAnswerLookupIds[(int) $factorId];
+        }
+
+        if ($answerLookupId === '') {
+            continue;
+        }
+
+        $answeredFactors[] = [
+            'factor_label' => (string) ($factorOption['label_el'] ?? '-'),
+            'answer_label' => $factorAnswerLabelsById[$answerLookupId] ?? '-',
+        ];
+    }
+    ?>
+
+    <article class="rounded-xl border border-slate-200 bg-white p-4">
+        <h2 class="mb-3 text-lg font-semibold">Β. Συνεισφέροντες Παράγοντες</h2>
+        <?php if ($answeredFactors === []): ?>
+            <p class="text-sm text-slate-500">Για κάθε παράγοντα επιλέξτε τι ισχύει: Ναι, Όχι ή Δεν γνωρίζω.</p>
+        <?php else: ?>
+            <ul class="space-y-2">
+                <?php foreach ($answeredFactors as $row): ?>
+                    <li class="flex items-start justify-between gap-3 rounded-md border border-slate-200 px-3 py-2 text-sm">
+                        <span class="text-slate-800"><?= e((string) $row['factor_label']) ?></span>
+                        <span class="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700"><?= e((string) $row['answer_label']) ?></span>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
+    </article>
+
     <?php if ($canEdit): ?>
         <article class="rounded-xl border border-slate-200 bg-white p-4">
             <h2 class="mb-3 text-lg font-semibold">Αλλαγή Κατάστασης</h2>

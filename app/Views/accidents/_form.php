@@ -3,9 +3,10 @@ $accident = $accident ?? [];
 $value = static function (string $key, mixed $fallback = '') use ($accident) {
     return old($key, $accident[$key] ?? $fallback);
 };
-$selectedFactors = old('factor_ids', $factorIds ?? []);
-if (!is_array($selectedFactors)) {
-    $selectedFactors = [];
+$factorAnswersInput = old_array('factor_answer_lookup_ids');
+$factorAnswerLookupIdsFinal = $factorAnswersInput !== [] ? $factorAnswersInput : ($factorAnswerLookupIds ?? []);
+if (!is_array($factorAnswerLookupIdsFinal)) {
+    $factorAnswerLookupIdsFinal = [];
 }
 $participantInput = old_array('participant_counts');
 $participantCountsFinal = $participantInput !== [] ? $participantInput : ($participantCounts ?? []);
@@ -172,15 +173,45 @@ if ($sequenceSelected === '' && isset($accident['sequence_of_events']) && (strin
     </section>
 
     <section class="rounded-xl border border-slate-200 bg-white p-5">
-        <h2 class="mb-4 text-lg font-semibold">Β. Συνεισφέροντες Παράγοντες</h2>
-        <div class="grid gap-2 md:grid-cols-2">
-            <?php foreach ($lookup['factors'] as $opt): ?>
-                <label class="inline-flex items-center gap-2 text-sm">
-                    <input type="checkbox" name="factor_ids[]" value="<?= e((string) $opt['id']) ?>" <?= in_array((string) $opt['id'], array_map('strval', $selectedFactors), true) ? 'checked' : '' ?>>
-                    <?= e((string) $opt['label_el']) ?>
-                </label>
+        <h2 class="mb-2 text-lg font-semibold">Β. Συνεισφέροντες Παράγοντες</h2>
+        <p class="mb-4 text-sm text-slate-600">Για κάθε παράγοντα επιλέξτε τι ισχύει: Ναι, Όχι ή Δεν γνωρίζω.</p>
+
+        <div class="space-y-2">
+            <?php foreach ($lookup['factors'] as $opt):
+                $factorId = (string) ($opt['id'] ?? '');
+                $selectedAnswer = '';
+                if (array_key_exists($factorId, $factorAnswerLookupIdsFinal)) {
+                    $selectedAnswer = (string) $factorAnswerLookupIdsFinal[$factorId];
+                } elseif (array_key_exists((int) $factorId, $factorAnswerLookupIdsFinal)) {
+                    $selectedAnswer = (string) $factorAnswerLookupIdsFinal[(int) $factorId];
+                }
+            ?>
+                <div class="grid gap-2 rounded-md border border-slate-200 p-3 md:grid-cols-[minmax(0,1fr)_240px] md:items-center">
+                    <label for="factor-answer-<?= e($factorId) ?>" class="text-sm font-medium text-slate-800">
+                        <?= e((string) ($opt['label_el'] ?? '-')) ?>
+                    </label>
+                    <select
+                        id="factor-answer-<?= e($factorId) ?>"
+                        name="factor_answer_lookup_ids[<?= e($factorId) ?>]"
+                        class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+                    >
+                        <option value="">Μη καταχωρημένο</option>
+                        <?php foreach ($lookup['factor_answers'] as $answerOpt): ?>
+                            <option
+                                value="<?= e((string) $answerOpt['id']) ?>"
+                                <?= ($selectedAnswer === (string) $answerOpt['id']) ? 'selected' : '' ?>
+                            >
+                                <?= e((string) $answerOpt['label_el']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             <?php endforeach; ?>
         </div>
+
+        <?php if ($err = error_for('factor_answer_lookup_ids')): ?>
+            <p class="mt-2 text-xs text-rose-700"><?= e($err) ?></p>
+        <?php endif; ?>
     </section>
 
     <section class="rounded-xl border border-slate-200 bg-white p-5">
@@ -277,3 +308,5 @@ if ($sequenceSelected === '' && isset($accident['sequence_of_events']) && (strin
         <a href="<?= e($editing ? url('/accidents/' . $accident['id']) : url('/accidents')) ?>" class="rounded-md border border-slate-300 px-4 py-2 text-sm">Ακύρωση</a>
     </div>
 </form>
+
+

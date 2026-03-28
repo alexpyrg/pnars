@@ -7,3 +7,4 @@
 \i migrations/004_analytics_views.sql
 \i migrations/005_performance_tuning.sql
 \i migrations/006_rate_limit_buckets.sql
+\i migrations/007_accident_factor_tri_state.sql
