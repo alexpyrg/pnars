@@ -1,0 +1,8 @@
+.env
+storage/logs/*.log
+storage/tmp/*
+storage/uploads/*
+!storage/uploads/.gitkeep
+!storage/uploads/accidents/.gitkeep
+!storage/uploads/roads/.gitkeep
+!storage/uploads/vehicles/.gitkeep

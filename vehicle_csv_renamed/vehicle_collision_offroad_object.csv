@@ -1,0 +1,45 @@
+vehicleobjectstruckoffroad_id,descriptionorder,objectstruckoffroadtype,objectstruckoffroaddetail,description
+0,0,"","","Επιλέξτε..."
+20,2,"Collision with Motor vehicle","Motor vehicle in transport on same roadway","Όχημα που κινείται στον ίδιο δρόμο "
+21,2,"Collision with Motor vehicle","Motor vehicle in transport on other roadway","Όχημα που κινείται σε διαφορετικό δρόμο "
+22,2,"Collision with Motor vehicle","Parked motor vehicle (not in transport)","Σταθμευμένο όχημα "
+23,2,"Collision with Motor vehicle","Working construction","Κατασκευαστικές εργασίες "
+24,2,"Collision with Motor vehicle","Maintenance or utility vehicles","Οχήματα συντήρησης"
+25,2,"Collision with Motor vehicle","Motor vehicle struck by falling/shifting cargo or anything set in motion by another motor vehicle in transport","Χτύπημα οχήματος από πτώση/μετατόπιση φορτίου κατά την μεταφορά από άλλο όχημα"
+26,3,"Collision with object not fixed",Pedestrian,Πεζός
+27,3,"Collision with object not fixed","Non-motorist on personal conveyance","Ανάπηρος, βρέφος, κτλ"
+28,3,"Collision with object not fixed","Pedal cycle","Ποδήλατο "
+29,3,"Collision with object not fixed","Railway train","Τρένο "
+30,3,"Collision with object not fixed",Animal,Ζώο
+31,3,"Collision with object not fixed","Ridden animal or animal-drawn conveyance","Σύγκρουση με οχήμα που μεταφέρεται από ζώο ή με ζώο που έχει αναβάτη"
+32,3,"Collision with object not fixed","Other object (not fixed)","Άλλο αντικείμενο (όχι σταθερό)"
+33,4,"Collision with fixed objects",Boulder,Ογκόλιθο
+34,4,"Collision with fixed objects",Building,Κτίριο
+36,4,"Collision with fixed objects","Bridge Pier or Abutment","Γέφυρα λιμανιού , γέφυρα από σιδηροκατασκευή"
+37,4,"Collision with fixed objects","Bridge Parapet End","Τελειώμα/άκρη κιγκλιδώματος γέφυρας"
+38,4,"Collision with fixed objects","Bridge Parapet","Κιγκλίδωμα γέφυρας"
+39,4,"Collision with fixed objects","Bridge Overhead Structure","Σώμα γέφυρας"
+40,4,"Collision with fixed objects","Guardrail Face","Προστατευτικό στηθαίο πρόσοψη"
+41,4,"Collision with fixed objects","Guardrail End","Προστατευτικό στηθαίο άκρη"
+42,4,"Collision with fixed objects","Concrete Traffic Barrier","Προστατευτικό στηθαίο από τσιμέντο"
+43,4,"Collision with fixed objects","Other Traffic Barrier","Άλλο προστατευτικό στηθαίο"
+44,4,"Collision with fixed objects","Highway/Traffic Sign Post/Sign","Σηματοδότες κυκλοφορίας αυτοκινητόδρομου/Πινακίδες Σήμανσης ΚΟΚ"
+45,4,"Collision with fixed objects","Traffic Signal Support/Signal","Πλευρική Φωτεινή Σηματοδότηση"
+46,4,"Collision with fixed objects","Overhead Sign Support/Sign","Οριζόντια  Φωτεινή Σηματοδότηση"
+47,4,"Collision with fixed objects","Luminary/Light Support","Φωτινοί σηματοδότες"
+48,4,"Collision with fixed objects","Utility Pole","Στύλοι ηλεκτροδότησης"
+49,4,"Collision with fixed objects","Other Post, Other Pole, or Other Supports","Άλλοι στύλοι ή άλλοι στύλοι σταθεροποίησης στον δρόμο"
+50,4,"Collision with fixed objects",Culvert,"Αποχέτευση υπόγειων χώρων"
+51,4,"Collision with fixed objects",Kerb,"Ρείθρο "
+52,4,"Collision with fixed objects",Ditch,Χαντάκι
+53,4,"Collision with fixed objects","Embankment - Earth","Πρανές έδαφος"
+54,4,"Collision with fixed objects","Embankment - Rock, Stone or Concrete","Πρανές πέτρες, βράχοι, τσιμέντο"
+55,4,"Collision with fixed objects","Embankment - Material Type Unknown","Πρανές άγνωστο ύλικο"
+56,4,"Collision with fixed objects",Fence,Φράχτης
+57,4,"Collision with fixed objects",Wall,Τοίχος
+58,4,"Collision with fixed objects","Tree (Standing Tree Only)","Δέντρο "
+59,4,"Collision with fixed objects","Snow Bank","Όγκο χιονιού"
+60,4,"Collision with fixed objects","Other Fixed Object","Άλλα σταθερά αντικείμενα"
+777,5,"Not applicable","Not applicable","Δεν εφαρμόζεται"
+888,5,Other,Other,Άλλο
+999,5,Unknown,Unknown,Άγνωστο

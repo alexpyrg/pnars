@@ -1,0 +1,60 @@
+accidentcollisionevent_id,descriptionorder,collisiontype,description
+0,0,Select...,Επιλέξτε...
+1,1,Non-collision,"Ανατροπή αυτοκινήτου"
+2,1,Non-collision,Φωτιά/Έκρηξη
+3,1,Non-collision,Βύθιση
+4,1,Non-collision,"Διαρροή αερίου"
+5,1,Non-collision,"Έφυγε/πήδηξε από το όχημα "
+6,1,Non-collision,"Τραυματισμός στο όχημα "
+7,1,Non-collision,"Ιπτάμενο αντικείμενο"
+8,1,Non-collision,"Κακοτεχνίες στην κατασκευή των πεζοδρομίων (λακκούβες ή αυλακώσεις ή σχάρες)"
+10,1,Non-collision,"Δίπλωμα επικαθήμενου - συρόμενου"
+11,1,Non-collision,"Απώλεια ή μετατόπιση φορτίου/εξοπλισμού"
+12,1,Non-collision,"Βλάβη του οχήματος (σκάσιμο ελαστικών ή δεν λειτουργούν τα φρένα)"
+13,1,Non-collision,"Διαχωρισμός φορτίων/ρυμουλκούμενου"
+14,1,Non-collision,"Εκτός δρόμου - αριστερά"
+15,1,Non-collision,"Εκτός δρόμου - δεξιά"
+16,1,Non-collision,"Διαχωριστική λωρίδα κυκλοφορίας"
+17,1,Non-collision,Κατωφέρεια
+18,1,Non-collision,"Εκτόξευση αυτοκινήτου στον αέρα"
+19,1,Non-collision,"Άλλη μη σύγκρουση "
+20,2,"Collision with Motor vehicle","Σύγκρουση με άλλο όχημα στον ίδιο δρόμο κυκλοφορίας "
+21,2,"Collision with Motor vehicle","Σύγκρουση με άλλο όχημα σε διαφορετικό δρόμο κυκλοφορίας "
+22,2,"Collision with Motor vehicle","Σταματημένο όχημα"
+23,2,"Collision with Motor vehicle","Κατασκευαστικές εργασίες"
+24,2,"Collision with Motor vehicle","Οχήματα συντήρησης ή οχήματα του δήμου"
+25,2,"Collision with Motor vehicle","Σύγκρουση οχήματος από πτώση/μετακίνηση φορτίου κατά την μεταφορά από άλλο όχημα"
+26,3,"Collision with object not fixed",Πεζό
+28,3,"Collision with object not fixed","Ποδήλατο "
+29,3,"Collision with object not fixed","Τρένο "
+30,3,"Collision with object not fixed",Ζώο
+31,3,"Collision with object not fixed","Σύγκρουση με οχήμα που μεταφέρεται από ζώο ή από ζώο οδηγό"
+32,3,"Collision with object not fixed","Άλλο αντικείμενο (όχι σταθερό)"
+33,4,"Collision with fixed objects",Ογκόλιθο
+34,4,"Collision with fixed objects","Σύγκρουση με κτίριο"
+36,4,"Collision with fixed objects","Γέφυρα λιμανιού/Γέφυρα από σιδηροκατασκευή"
+37,4,"Collision with fixed objects","Τελειώμα/άκρη κιγκλιδώματος γέφυρας"
+38,4,"Collision with fixed objects","Κιγκλίδωμα γέφυρας"
+39,4,"Collision with fixed objects","Σώμα γέφυρας"
+40,4,"Collision with fixed objects","Προστατευτικό στηθαίο πρόσοψη"
+41,4,"Collision with fixed objects","Προστατευτικό στηθαίο άκρη"
+42,4,"Collision with fixed objects","Προστατευτικό στηθαίο από τσιμέντο"
+43,4,"Collision with fixed objects","Άλλο προστατευτικό στηθαίο"
+44,4,"Collision with fixed objects","Σηματοδότες κυκλοφορίας αυτοκινητόδρομου/Πινακίδες Σήμανσης ΚΟΚ"
+45,4,"Collision with fixed objects","Πλευρική Φωτεινή Σηματοδότηση"
+46,4,"Collision with fixed objects","Οριζόντια  Φωτεινή Σηματοδότηση"
+47,4,"Collision with fixed objects","Φωτινοί σηματοδότες"
+48,4,"Collision with fixed objects","Στύλοι ηλεκτροδότησης"
+49,4,"Collision with fixed objects","Άλλοι στύλοι ή άλλοι στύλοι σταθεροποίησης στον δρόμο"
+50,4,"Collision with fixed objects","Αποχέτευση υπόγειων χώρων"
+51,4,"Collision with fixed objects","Ρείθρο "
+52,4,"Collision with fixed objects",Χαντάκι
+53,4,"Collision with fixed objects","Πρανές έδαφος"
+54,4,"Collision with fixed objects","Πρανές πέτρες/Βράχοι/Τσιμέντο"
+55,4,"Collision with fixed objects","Πρανές άγνωστο ύλικο"
+56,4,"Collision with fixed objects",Φράχτης
+57,4,"Collision with fixed objects",Τοίχος
+58,4,"Collision with fixed objects","Δέντρο "
+59,4,"Collision with fixed objects","Όγκο χιονιού"
+60,4,"Collision with fixed objects","Άλλα σταθερά αντικείμενα"
+999,5,Unknown,Άγνωστο
