@@ -366,69 +366,190 @@ final class AccidentRepository
     /** @return array<int, int> */
     public function factorAnswerLookupIds(string $accidentId): array
     {
-        $stmt = $this->pdo->prepare(
-            'SELECT factor_lookup_id, answer_lookup_id
-             FROM accident_factor_answers
-             WHERE accident_id = :accident_id'
-        );
-        $stmt->execute([':accident_id' => $accidentId]);
+        try {
+            $stmt = $this->pdo->prepare(
+                'SELECT factor_lookup_id, answer_lookup_id
+                 FROM accident_factor_answers
+                 WHERE accident_id = :accident_id'
+            );
+            $stmt->execute([':accident_id' => $accidentId]);
 
-        $out = [];
-        foreach ($stmt->fetchAll() ?: [] as $row) {
-            $out[(int) $row['factor_lookup_id']] = (int) $row['answer_lookup_id'];
+            $out = [];
+            foreach ($stmt->fetchAll() ?: [] as $row) {
+                $out[(int) $row['factor_lookup_id']] = (int) $row['answer_lookup_id'];
+            }
+
+            return $out;
+        } catch (\PDOException $e) {
+            if ((string) $e->getCode() !== '42P01') {
+                throw $e;
+            }
+
+            $yesAnswerLookupId = $this->resolveLegacyYesAnswerLookupId();
+            if ($yesAnswerLookupId === null) {
+                return [];
+            }
+
+            try {
+                $legacyStmt = $this->pdo->prepare(
+                    'SELECT factor_lookup_id
+                     FROM accident_factors
+                     WHERE accident_id = :accident_id'
+                );
+                $legacyStmt->execute([':accident_id' => $accidentId]);
+            } catch (\PDOException $legacyError) {
+                if ((string) $legacyError->getCode() !== '42P01') {
+                    throw $legacyError;
+                }
+
+                return [];
+            }
+
+            $out = [];
+            foreach ($legacyStmt->fetchAll() ?: [] as $row) {
+                $out[(int) $row['factor_lookup_id']] = $yesAnswerLookupId;
+            }
+
+            return $out;
         }
-
-        return $out;
     }
 
     /** @param array<int, int> $factorAnswerLookupIds */
     public function syncFactorAnswers(string $accidentId, array $factorAnswerLookupIds, string $userId): void
     {
-        $this->pdo->prepare('DELETE FROM accident_factor_answers WHERE accident_id = :accident_id')
-            ->execute([':accident_id' => $accidentId]);
+        try {
+            $this->pdo->prepare('DELETE FROM accident_factor_answers WHERE accident_id = :accident_id')
+                ->execute([':accident_id' => $accidentId]);
 
-        if ($factorAnswerLookupIds === []) {
-            return;
-        }
-
-        $stmt = $this->pdo->prepare(
-            'INSERT INTO accident_factor_answers (
-                accident_id,
-                factor_lookup_id,
-                answer_lookup_id,
-                created_by,
-                updated_by,
-                created_at,
-                updated_at
-             ) VALUES (
-                :accident_id,
-                :factor_lookup_id,
-                :answer_lookup_id,
-                :created_by,
-                :updated_by,
-                NOW(),
-                NOW()
-             )'
-        );
-
-        foreach ($factorAnswerLookupIds as $factorId => $answerLookupId) {
-            $factorId = (int) $factorId;
-            $answerLookupId = (int) $answerLookupId;
-
-            if ($factorId <= 0 || $answerLookupId <= 0) {
-                continue;
+            if ($factorAnswerLookupIds === []) {
+                return;
             }
 
-            $stmt->execute([
-                ':accident_id' => $accidentId,
-                ':factor_lookup_id' => $factorId,
-                ':answer_lookup_id' => $answerLookupId,
-                ':created_by' => $userId,
-                ':updated_by' => $userId,
-            ]);
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO accident_factor_answers (
+                    accident_id,
+                    factor_lookup_id,
+                    answer_lookup_id,
+                    created_by,
+                    updated_by,
+                    created_at,
+                    updated_at
+                 ) VALUES (
+                    :accident_id,
+                    :factor_lookup_id,
+                    :answer_lookup_id,
+                    :created_by,
+                    :updated_by,
+                    NOW(),
+                    NOW()
+                 )'
+            );
+
+            foreach ($factorAnswerLookupIds as $factorId => $answerLookupId) {
+                $factorId = (int) $factorId;
+                $answerLookupId = (int) $answerLookupId;
+
+                if ($factorId <= 0 || $answerLookupId <= 0) {
+                    continue;
+                }
+
+                $stmt->execute([
+                    ':accident_id' => $accidentId,
+                    ':factor_lookup_id' => $factorId,
+                    ':answer_lookup_id' => $answerLookupId,
+                    ':created_by' => $userId,
+                    ':updated_by' => $userId,
+                ]);
+            }
+        } catch (\PDOException $e) {
+            if ((string) $e->getCode() !== '42P01') {
+                throw $e;
+            }
+
+            try {
+                $this->pdo->prepare('DELETE FROM accident_factors WHERE accident_id = :accident_id')
+                    ->execute([':accident_id' => $accidentId]);
+            } catch (\PDOException $legacyError) {
+                if ((string) $legacyError->getCode() !== '42P01') {
+                    throw $legacyError;
+                }
+
+                return;
+            }
+
+            if ($factorAnswerLookupIds === []) {
+                return;
+            }
+
+            $yesAnswerLookupId = $this->resolveLegacyYesAnswerLookupId();
+            if ($yesAnswerLookupId === null) {
+                return;
+            }
+
+            $legacyInsert = $this->pdo->prepare(
+                'INSERT INTO accident_factors (accident_id, factor_lookup_id, created_by)
+                 VALUES (:accident_id, :factor_lookup_id, :created_by)'
+            );
+
+            foreach ($factorAnswerLookupIds as $factorId => $answerLookupId) {
+                $factorId = (int) $factorId;
+                $answerLookupId = (int) $answerLookupId;
+
+                if ($factorId <= 0 || $answerLookupId !== $yesAnswerLookupId) {
+                    continue;
+                }
+
+                $legacyInsert->execute([
+                    ':accident_id' => $accidentId,
+                    ':factor_lookup_id' => $factorId,
+                    ':created_by' => $userId,
+                ]);
+            }
         }
     }
 
+    private function resolveLegacyYesAnswerLookupId(): ?int
+    {
+        static $resolved = false;
+        static $cachedId = null;
+
+        if ($resolved) {
+            return $cachedId;
+        }
+
+        $resolved = true;
+
+        $stmt = $this->pdo->prepare(
+            "SELECT lv.id
+             FROM lookup_values lv
+             JOIN lookup_domains ld ON ld.id = lv.domain_id
+             WHERE ld.code = 'yes_no_unknown'
+               AND lv.code = 'yes'
+             LIMIT 1"
+        );
+        $stmt->execute();
+        $yesId = $stmt->fetchColumn();
+        if ($yesId !== false) {
+            $cachedId = (int) $yesId;
+
+            return $cachedId;
+        }
+
+        $fallbackStmt = $this->pdo->prepare(
+            "SELECT lv.id
+             FROM lookup_values lv
+             JOIN lookup_domains ld ON ld.id = lv.domain_id
+             WHERE ld.code = 'accident_alcohol'
+               AND lv.code = '1'
+             LIMIT 1"
+        );
+        $fallbackStmt->execute();
+        $fallbackYesId = $fallbackStmt->fetchColumn();
+
+        $cachedId = $fallbackYesId !== false ? (int) $fallbackYesId : null;
+
+        return $cachedId;
+    }
     /** @return array<int, int> */
     public function participantCounts(string $accidentId): array
     {

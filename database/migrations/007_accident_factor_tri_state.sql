@@ -1,4 +1,4 @@
-﻿BEGIN;
+BEGIN;
 
 INSERT INTO lookup_domains (code, label_el, source_scope)
 VALUES ('yes_no_unknown', 'Απάντηση Ναι/Όχι/Δεν γνωρίζω', 'system')
